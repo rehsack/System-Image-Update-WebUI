@@ -1,0 +1,27 @@
+<div id="page">
+  <div id="content">
+    <div id="header">
+      <h1>Update Web UI</h1>
+      <table>
+      <tbody>
+      <tr><th>Status</th><th><a href="/config">Configuration</a></th></tr>
+      </tbody>
+      </table>
+    </div>
+
+    <div id="information">
+      <h1>Software Status</h1>
+
+      <table>
+        <tbody>
+          <tr><th>Software</th><th>Version</th></tr>
+	  [% FOREACH sw_pair IN sysupdt_software.pairs %]
+	  <tr><td>[% sw_pair.key %]</td><td>[% sw_pair.value %]</td></tr>
+	  [% END %]
+        </tbody>
+      </table>
+      <p></p>
+      <div>System Update status: [% sysupdt_status %]</div>
+    </div>
+  </div>
+</div>

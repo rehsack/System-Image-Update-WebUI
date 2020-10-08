@@ -1,0 +1,32 @@
+<div id="page">
+  <div id="content">
+    <div id="header">
+      <h1>Update Web UI</h1>
+      <table>
+      <tbody>
+      <tr><th><a href="/">Status</a></th><th>Configuration</th></tr>
+      </tbody>
+      </table>
+    </div>
+
+    <div id="information">
+        <form action="/apply/config" method="post">
+          <p>
+            <label for="update_server">Update-Server: </label>
+            <input type="text" id="update_server" value="[% sysupdt_config.host %]" /><br >
+            <label for="update_path">Update-Path: </label>
+            <input type="text" id="update_path" value="[% sysupdt_config.path %]" /><br >
+            <label for="update_manifest_basename">Manifest (Basename): </label>
+            <input type="text" id="update_manifest_basename" value="[% sysupdt_config.manifest_basename %]" /><br >
+            <label for="update_manifest_dirname">Manifest-Directory: </label>
+            <input type="text" id="update_manifest_dirname" value="[% sysupdt_config.manifest_dirname %]" /><br >
+            <label for="update_username">Userame: </label>
+            <input type="text" id="update_username" value="[% sysupdt_config.username %]" /><br >
+            <label for="update_password">Password: </label>
+            <input type="password" id="update_password" value="[% sysupdt_config.password %]" /><br >
+            <input type="submit" value="Apply Settings" /> <input type="reset" value="Reset Form" />
+          </p>
+        </form>
+    </div>
+  </div>
+</div>

@@ -4,7 +4,7 @@
       <h1>Update Web UI</h1>
       <table>
       <tbody>
-      <tr><th><a href="/">Status</a></th><th>Configuration</th></tr>
+      <tr><th><a href="/">Status</a></th><th><a href="/config">Configuration</a></th></tr>
       </tbody>
       </table>
     </div>

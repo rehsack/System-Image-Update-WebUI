@@ -20,14 +20,6 @@ sub _trigger_recent_update { }
 # XXX for debugging purposes we might want a singleton here ...
 sub _trigger_log_adapter { }
 
-around BUILDARGS => sub {
-    my $next   = shift;
-    my $self   = shift;
-    my $params = $self->$next(@_);
-    exists $params->{status} and delete $params->{status};
-    $params;
-};
-
 around collect_savable_config => sub {
     my $next                   = shift;
     my $self                   = shift;
@@ -47,6 +39,7 @@ sub is_running
 has ready => (
     is      => "lazy",
     builder => 1,
+    init    => undef,
 );
 
 sub _build_ready

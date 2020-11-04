@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
   <title>[% title %]</title>
   <link rel="stylesheet" href="[% request.uri_base %]/css/style.css">
+  [% IF refresh.timeout %]<meta http-equiv="refresh" content="[% refresh.timeout %]; url='[% refresh.url %]'" />[% END %]
 
 <!-- Grab jQuery from a CDN, fall back to local if necessary -->
 <script src="//code.jquery.com/jquery-3.4.1.min.js"></script>

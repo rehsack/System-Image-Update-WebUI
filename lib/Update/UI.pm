@@ -42,7 +42,11 @@ get '/' => sub {
     my $sysupdt_action = $sysupdt_actions{$sysupdt_status};
     $sysupdt_action //= \%sysupdt_error_action;
     template 'index' => {
-        'title'            => 'Updater UI - Status',
+        'title'   => 'Updater UI - Status',
+        'refresh' => {
+            timeout => 20,
+            url     => '/'
+        },
         'sysupdt_software' => get_installed_software,
         'sysupdt_status'   => $sysupdt_status,
         'sysupdt_action'   => $sysupdt_action,
@@ -54,20 +58,16 @@ post '/apply/status' => sub {
 
     set_sysupdate_status({action => $action});
 
-    my $sysupdt_status = get_sysupdate_status;
-    my $sysupdt_action = $sysupdt_actions{$sysupdt_status};
-    $sysupdt_action //= \%sysupdt_error_action;
-    template 'index' => {
-        'title'            => 'Updater UI - Status',
-        'sysupdt_software' => get_installed_software,
-        'sysupdt_status'   => $sysupdt_status,
-        'sysupdt_action'   => $sysupdt_action,
-    };
+    redirect '/';
 };
 
 get '/config' => sub {
     template 'config' => {
-        'title'          => 'Updater UI - Configuration',
+        'title'   => 'Updater UI - Configuration',
+        'refresh' => {
+            timeout => 20,
+            url     => '/config'
+        },
         'sysupdt_config' => get_sysupdate_config
     };
 };
@@ -83,10 +83,7 @@ post '/apply/config' => sub {
 
     set_sysupdate_config(\%cfg);
 
-    template 'config' => {
-        'title'          => 'Updater UI - Configuration (Saved)',
-        'sysupdt_config' => get_sysupdate_config
-    };
+    redirect '/config';
 };
 
 true;

@@ -21,7 +21,12 @@
         </tbody>
       </table>
       <p></p>
-      <div>System Update status: [% sysupdt_status %]</div>
+      <div>
+        System Update status: [% sysupdt_status %]
+        <form action="/apply/status" method="post">
+            <input type="submit" name="action" value="[% sysupdt_action.action %]" [% IF sysupdt_action.enabled == 0 %]disabled[% END %]/>
+        </form>
+      </div>
     </div>
   </div>
 </div>

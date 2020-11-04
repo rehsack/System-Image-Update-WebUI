@@ -12,7 +12,9 @@ use File::Find::Rule ();
 use File::Slurper qw(read_text);
 use Unix::Statgrab qw(get_process_stats);
 
-our @EXPORT_OK = qw(get_installed_software get_sysupdate_status get_sysupdate_config set_sysupdate_config);
+our @EXPORT_OK = qw(get_installed_software get_sysupdate_status set_sysupdate_status get_sysupdate_config set_sysupdate_config);
+
+use experimental 'switch';
 
 sub get_installed_software
 {
@@ -30,24 +32,103 @@ sub get_installed_software
     return $installed_sw;
 }
 
+sub _get_us_status
+{
+    my $us = shift;
+
+    my $status = "idle";
+    $us->has_recent_update    and $status = "available";
+    $us->status eq "download" and $status = "downloading";
+    $us->status eq "prove"    and $status = "downloading" and $us->prove;
+    $us->has_verified_update  and $status = "proved";
+    my $proc_list = get_process_stats();
+    grep { /flash-device/ } map { $proc_list->process_name($_) } (0 .. $proc_list->entries() - 1) and $status = "applying";
+
+    return $status;
+}
+
 sub get_sysupdate_status
 {
     Update::Status->is_running or return "n/a";
 
     my $us = eval { Update::Status->new(); };
-    $us or return "Update::Status initialization failed: '$@'";
+    unless ($us)
+    {
+        printf STDERR "set_sysupdate_status: error initializing Update::Status: '%s'\n", $@;
+        return "Update::Status initialization failed: '$@'";
+    }
 
-    my $status = "idle";
-    $us->has_recent_update and $status = "available";
-    $us->status eq "prove" and $status = "downloading";
-    $us->has_recent_update
-      and -f $us->download_image
-      and $us->download_sums->{size} == stat($us->download_image)->size
-      and $status = "proved";
-    my $proc_list = get_process_stats();
-    grep { /flash-device/ } map { $proc_list->process_name($_) } (0 .. $proc_list->entries() - 1) and $status = "applying";
+    return _get_us_status($us);
+}
 
-    return $status;
+my %set_on_action = (
+    Scan     => "scan",
+    Download => "download",
+    Install  => "apply",
+);
+
+sub set_sysupdate_status
+{
+    my $cfg = shift;
+    unless ($cfg->{action})
+    {
+        printf STDERR "set_sysupdate_status: Missing parameter 'action'\n";
+        return;
+    }
+
+    my $us = eval { Update::Status->new(); };
+    unless ($us)
+    {
+        printf STDERR "set_sysupdate_status: error initializing Update::Status: '%s'\n", $@;
+        return;
+    }
+
+    my $status = _get_us_status($us);
+
+    given ($cfg->{action})
+    {
+        when ("Scan")
+        {
+            if ($us->ready)
+            {
+                $us->status("scan");
+            }
+            else
+            {
+                printf STDERR "set_sysupdate_status: Can't scan - service isn't ready\n";
+                return;
+            }
+        }
+        when ("Download")
+        {
+            if ($us->ready and $us->has_recent_update and $status ne "downloading")
+            {
+                $us->status("download");
+            }
+            else
+            {
+                printf STDERR "set_sysupdate_status: Can't download - no recent update available\n";
+                return;
+            }
+        }
+        when ("Apply")
+        {
+            if ($us->ready and $status eq "proved")
+            {
+                $us->status("apply");
+            }
+            else
+            {
+                printf STDERR "set_sysupdate_status: Can't apply - no verified update available\n";
+                return;
+            }
+        }
+        default { }
+    }
+
+    $us->save_config_and_restart;
+
+    return;
 }
 
 sub get_sysupdate_config

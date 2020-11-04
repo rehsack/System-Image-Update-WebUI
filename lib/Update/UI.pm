@@ -2,17 +2,66 @@ package Update::UI;
 
 use strict;
 use warnings;
+use v5.24;
 
 use Dancer2;
-use Update::UI::Backend qw(get_installed_software get_sysupdate_status get_sysupdate_config set_sysupdate_config);
+use Update::UI::Backend (qw(get_installed_software), qw(get_sysupdate_status set_sysupdate_status),
+    qw(get_sysupdate_config set_sysupdate_config));
 
 our $VERSION = '0.001';
 
+my %sysupdt_actions = (
+    "idle" => {
+        action  => "Scan",
+        enabled => 1
+    },
+    "available" => {
+        action  => "Download",
+        enabled => 1
+    },
+    "downloading" => {
+        action  => "Be patient",
+        enabled => 0
+    },
+    "proved" => {
+        action  => "Apply",
+        enabled => 1
+    },
+    "applying" => {
+        action  => "Be patient",
+        enabled => 0
+    },
+);
+my %sysupdt_error_action = (
+    action  => "Scan",
+    enabled => 1
+);
+
 get '/' => sub {
+    my $sysupdt_status = get_sysupdate_status;
+    my $sysupdt_action = $sysupdt_actions{$sysupdt_status};
+    $sysupdt_action //= \%sysupdt_error_action;
     template 'index' => {
         'title'            => 'Updater UI - Status',
         'sysupdt_software' => get_installed_software,
-        'sysupdt_status'   => get_sysupdate_status,
+        'sysupdt_status'   => $sysupdt_status,
+        'sysupdt_action'   => $sysupdt_action,
+    };
+};
+
+post '/apply/status' => sub {
+    my $action = body_parameters->get('action');
+
+    set_sysupdate_status({action => $action});
+
+    my $sysupdt_status = get_sysupdate_status;
+    my $sysupdt_action = $sysupdt_actions{$sysupdt_status};
+    $sysupdt_action //= \%sysupdt_error_action;
+    template 'index' => {
+        'title'            => 'Updater UI - Status',
+        'sysupdt_software' => get_installed_software,
+        'sysupdt_status'   => $sysupdt_status,
+        'sysupdt_action'   => $sysupdt_action,
     };
 };
 
@@ -22,8 +71,6 @@ get '/config' => sub {
         'sysupdt_config' => get_sysupdate_config
     };
 };
-
-use Data::Dumper;
 
 post '/apply/config' => sub {
     my %cfg = (

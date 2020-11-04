@@ -15,9 +15,9 @@
       <table>
         <tbody>
           <tr><th>Software</th><th>Version</th></tr>
-	  [% FOREACH sw_pair IN sysupdt_software.pairs %]
-	  <tr><td>[% sw_pair.key %]</td><td>[% sw_pair.value %]</td></tr>
-	  [% END %]
+          [% FOREACH sw_pair IN sysupdt_software.pairs %]
+          <tr><td>[% sw_pair.key %]</td><td>[% sw_pair.value %]</td></tr>
+          [% END %]
         </tbody>
       </table>
       <p></p>

@@ -9,16 +9,30 @@ use Unix::Statgrab qw(get_process_stats);
 use Moo;
 use namespace::clean;
 
+use List::MoreUtils qw(arrayify);
+
 extends "System::Image::Update";
 
-# use sysimg_update config, not hp2sm - for this class
-sub _build_config_prefix { "sysimg-update" }
+with "MooX::ConfigFromFile::Role::HashMergeLoaded";
 
-# avoid automatic actions taken in wrong context
-sub _trigger_recent_update { }
+around _build_config_prefixes => sub {
+    my $next   = shift;
+    my $self   = shift;
+    my $params = shift;
 
-# XXX for debugging purposes we might want a singleton here ...
-sub _trigger_log_adapter { }
+    my @cnf_pfxs = grep { $_ ne "sysimg-update" } (arrayify $self->$next($params, @_));
+    unshift @cnf_pfxs, "sysimg-update";
+    \@cnf_pfxs;
+};
+
+around _build_config_prefix_map => sub {
+    my $next   = shift;
+    my $self   = shift;
+    my $params = shift;
+
+    my $cnf_pfx_map = $self->$next($params, @_);
+    $params->{config_prefixes};
+};
 
 around collect_savable_config => sub {
     my $next                   = shift;

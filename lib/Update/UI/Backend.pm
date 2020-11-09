@@ -101,7 +101,7 @@ sub set_sysupdate_status
         }
         when ("Download")
         {
-            if ($us->ready and $us->has_recent_update and $status ne "downloading")
+            if ($us->ready and $us->has_recent_update and $status eq "available")
             {
                 $us->status("download");
             }

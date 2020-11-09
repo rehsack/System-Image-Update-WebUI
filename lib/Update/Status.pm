@@ -70,6 +70,8 @@ sub _build_ready
     1;
 }
 
+around abort_download => sub { };
+
 sub save_config_and_restart
 {
     my $self = shift;

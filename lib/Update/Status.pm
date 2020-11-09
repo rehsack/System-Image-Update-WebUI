@@ -64,9 +64,9 @@ sub _build_ready
 
     my $proc_list = get_process_stats();
     my ($sysimg_update) = (grep { $proc_list->pid($_) == $pid } (0 .. $proc_list->entries() - 1));
-    $sysimg_update                                                                  or return 0;
-    -f $self->savable_configfile                                                    or return 0;
-    $proc_list->start_time($sysimg_update) < stat($self->savable_configfile)->mtime or return 0;
+    $sysimg_update                                                                   or return 0;
+    -f $self->savable_configfile                                                     or return 0;
+    $proc_list->start_time($sysimg_update) <= stat($self->savable_configfile)->mtime or return 0;
     1;
 }
 

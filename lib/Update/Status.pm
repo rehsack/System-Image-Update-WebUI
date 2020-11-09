@@ -30,9 +30,9 @@ around collect_savable_config => sub {
 
 sub is_running
 {
-    -f "/tmp/sysimg-update.once"     or return;
-    -d $ENV{SYSTEM_IMAGE_UPDATE_DIR} or return;
-    -w $ENV{SYSTEM_IMAGE_UPDATE_DIR} or return;
+    -f "/tmp/sysimg-update.once"           or return;
+    -d $ENV{SYSTEM_IMAGE_UPDATE_STATE_DIR} or return;
+    -w $ENV{SYSTEM_IMAGE_UPDATE_STATE_DIR} or return;
     `s6-svstat /etc/s6/service/system-image-update` =~ m/up\s\(pid\s(\d+)\)/;
 }
 
